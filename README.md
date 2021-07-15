@@ -7,4 +7,4 @@
 * Optimiser la taille et la vitesse d’un site web
 * Optimiser le référencement d'un site web
 
-Lien du site optimisé : 
+Lien du site optimisé :  https://stephsanchez2011.github.io/-Sanchezstephane_4_02072021/
