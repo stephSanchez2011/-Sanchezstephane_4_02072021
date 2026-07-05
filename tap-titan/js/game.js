@@ -342,10 +342,15 @@
     }
 
     function getHeroDps(heroId) {
-        var def = HEROES.find(function (h) { return h.id === heroId; });
         var hero = state.heroes.find(function (h) { return h.id === heroId; });
-        if (!def || !hero || hero.level === 0) return 0;
-        return Math.floor(def.baseDps * hero.level * Math.pow(1.05, hero.level - 1) * getDpsMultiplier());
+        var level = hero ? hero.level : 0;
+        return getHeroDpsAtLevel(heroId, level);
+    }
+
+    function getHeroDpsAtLevel(heroId, level) {
+        var def = HEROES.find(function (h) { return h.id === heroId; });
+        if (!def || level === 0) return 0;
+        return Math.floor(def.baseDps * level * Math.pow(1.05, level - 1) * getDpsMultiplier());
     }
 
     function getTotalDps() {
@@ -1076,14 +1081,31 @@
             var hero = state.heroes.find(function (h) { return h.id === def.id; });
             var cost = heroCost(def.id);
             var dps = getHeroDps(def.id);
+            var nextDps = getHeroDpsAtLevel(def.id, hero.level + 1);
+            var dpsGain = nextDps - dps;
             var canBuy = state.gold >= cost;
             var li = document.createElement("li");
-            li.className = "item-card" + (canBuy ? "" : " disabled");
-            li.innerHTML = '<div class="item-icon">' + def.icon + '</div>' +
-                '<div class="item-info"><div class="item-name">' + def.name + '</div>' +
-                '<div class="item-desc">' + (dps > 0 ? formatNumber(dps) + " DPS" : "Recruter") + '</div></div>' +
-                '<div class="item-action"><div class="item-cost">🪙 ' + formatNumber(cost) + '</div>' +
-                '<div class="item-level">Niv. ' + hero.level + '</div></div>';
+            li.className = "item-card hero-card" + (canBuy ? "" : " disabled");
+
+            var dpsLine = hero.level === 0
+                ? '<span class="hero-dps-current inactive">⚡ ' + formatNumber(nextDps) + ' DPS/s une fois recruté</span>'
+                : '<span class="hero-dps-current">⚡ ' + formatNumber(dps) + ' DPS/s</span>' +
+                  '<span class="hero-dps-next">+' + formatNumber(dpsGain) + ' DPS au prochain niv.</span>';
+
+            li.innerHTML =
+                '<div class="item-icon">' + def.icon + '</div>' +
+                '<div class="item-info">' +
+                    '<div class="hero-header">' +
+                        '<div class="item-name">' + def.name + '</div>' +
+                        '<span class="hero-level-badge">Niv. ' + hero.level + '</span>' +
+                    '</div>' +
+                    '<div class="hero-dps-block">' + dpsLine + '</div>' +
+                '</div>' +
+                '<div class="hero-cost-block">' +
+                    '<span class="hero-buy-label">' + (hero.level === 0 ? 'Recruter' : 'Améliorer') + '</span>' +
+                    '<div class="item-cost">🪙 ' + formatNumber(cost) + '</div>' +
+                '</div>';
+
             if (canBuy) li.addEventListener("click", function () { buyHero(def.id); });
             els.heroList.appendChild(li);
         });
