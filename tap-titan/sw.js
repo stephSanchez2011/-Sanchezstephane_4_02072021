@@ -1,5 +1,5 @@
-const CACHE = "tap-titan-v3";
-const ASSETS = ["./", "./index.html", "./css/style.css", "./js/game.js", "./manifest.json"];
+const CACHE = "tap-titan-v4";
+const ASSETS = ["./", "./index.html", "./css/style.css", "./js/game.js", "./js/sprites.js", "./manifest.json"];
 
 self.addEventListener("install", function (e) {
     e.waitUntil(caches.open(CACHE).then(function (cache) {

@@ -15,7 +15,10 @@
         <header class="hud">
             <div class="world-banner">
                 <span id="world-name">Forêt sombre</span>
-                <span id="world-stage" class="world-stage">Monde 1</span>
+                <div class="world-right">
+                    <span id="event-banner" class="event-banner hidden"></span>
+                    <span id="world-stage" class="world-stage">Monde 1</span>
+                </div>
             </div>
             <div class="hud-row">
                 <div class="stat">
@@ -50,13 +53,9 @@
         <main class="battle-area" id="battle-area">
             <div id="monster-zone" class="monster-zone" role="button" aria-label="Tapper pour attaquer">
                 <canvas id="particles" class="particles"></canvas>
-                <div id="monster" class="monster">
-                    <div id="monster-body" class="monster-body type-0">
-                        <div class="monster-eye left"></div>
-                        <div class="monster-eye right"></div>
-                        <div class="monster-mouth"></div>
-                    </div>
-                </div>
+                <canvas id="monster-sprite" class="monster-sprite"></canvas>
+                <canvas id="hero-sprites" class="hero-sprites"></canvas>
+                <div id="monster" class="monster hidden"></div>
                 <div id="monster-name" class="monster-name">Gobelin des cavernes</div>
             </div>
             <div id="damage-floats" class="damage-floats" aria-hidden="true"></div>
@@ -102,7 +101,17 @@
             </div>
             <div id="panel-prestige" class="panel-content">
                 <div class="prestige-box">
-                    <h2>Prestige</h2>
+                    <h2>Modes de jeu</h2>
+                    <div class="mode-toggle">
+                        <button id="mode-campaign" class="mode-btn active" type="button">🏰 Campagne</button>
+                        <button id="mode-infinite" class="mode-btn" type="button">♾️ Infini</button>
+                    </div>
+                    <p id="mode-desc" class="mode-desc">Progression classique avec mondes et boss.</p>
+                    <div id="infinite-stats" class="infinite-stats hidden">
+                        <div><span class="label">Vague actuelle</span><span id="infinite-wave">1</span></div>
+                        <div><span class="label">Record</span><span id="infinite-best">0</span></div>
+                    </div>
+                    <h2 class="prestige-title">Prestige</h2>
                     <p>Recommencez avec des bonus permanents. Les artefacts et l'équipement sont conservés.</p>
                     <div class="prestige-stats">
                         <div><span class="label">Reliques</span><span id="relics-display">0</span></div>
@@ -125,6 +134,7 @@
 
     <div id="toast" class="toast hidden"></div>
 
+    <script src="js/sprites.js"></script>
     <script src="js/game.js"></script>
 </body>
 </html>

@@ -2,10 +2,11 @@
     "use strict";
 
     const SAVE_KEY = "tapTitanSave";
-    const SAVE_VERSION = 3;
+    const SAVE_VERSION = 4;
     const BOSS_INTERVAL = 10;
     const BOSS_TIMER_SEC = 30;
     const PRESTIGE_MIN_STAGE = 50;
+    const INFINITE_UNLOCK = 100;
     const BASE_CRIT_CHANCE = 0.1;
     const CRIT_MULT = 5;
     const COMBO_TIMEOUT = 1200;
@@ -97,13 +98,24 @@
         { id: "combo20", name: "Doigts de feu", desc: "Combo ×30", icon: "🔥", target: 30, stat: "maxComboReached", reward: { gems: 3 } },
         { id: "legendary", name: "Fortune", desc: "Obtenir un loot légendaire", icon: "🌟", target: 1, stat: "legendaryLoot", reward: { gems: 20 } },
         { id: "prestige1", name: "Renaissance", desc: "Faire 1 prestige", icon: "♻️", target: 1, stat: "prestigeCount", reward: { gems: 10 } },
-        { id: "streak7", name: "Fidèle", desc: "7 jours de connexion", icon: "📅", target: 7, stat: "dailyStreak", reward: { gems: 15 } }
+        { id: "streak7", name: "Fidèle", desc: "7 jours de connexion", icon: "📅", target: 7, stat: "dailyStreak", reward: { gems: 15 } },
+        { id: "infinite20", name: "Vague sans fin", desc: "Vague 20 en mode infini", icon: "♾️", target: 20, stat: "infiniteBest", reward: { gems: 8 } },
+        { id: "infinite50", name: "Éternel", desc: "Vague 50 en mode infini", icon: "🌀", target: 50, stat: "infiniteBest", reward: { gems: 25 } }
+    ];
+
+    const WEEKLY_EVENTS = [
+        { id: "goldRush", name: "Ruée vers l'or", icon: "🪙", desc: "×2 or", goldMult: 2 },
+        { id: "gemHunt", name: "Chasse aux gemmes", icon: "💎", desc: "×3 gemmes", gemMult: 3 },
+        { id: "comboFest", name: "Festival combo", icon: "🔥", desc: "×2 combo max", comboMult: 2 },
+        { id: "bossHunt", name: "Chasse au boss", icon: "👹", desc: "×3 or boss", bossGoldMult: 3 },
+        { id: "lootRain", name: "Pluie de loot", icon: "📦", desc: "×2 loot", lootMult: 2 },
+        { id: "heroFury", name: "Furie des héros", icon: "⚔️", desc: "×1.5 DPS", dpsMult: 1.5 }
     ];
 
     let state, activeBuffs = {}, skillCooldowns = {}, bossTimer = null;
     let bossTimeLeft = BOSS_TIMER_SEC, lastTick = performance.now(), saveTimer = null;
     let dpsAccumulator = 0, combo = 0, lastTapTime = 0, currentSpecial = null;
-    let lootIdCounter = 0;
+    let lootIdCounter = 0, spriteEngine = null;
 
     const els = {
         gameApp: document.getElementById("game-app"),
@@ -124,7 +136,15 @@
         activeBuffs: document.getElementById("active-buffs"),
         monsterZone: document.getElementById("monster-zone"),
         monster: document.getElementById("monster"),
-        monsterBody: document.getElementById("monster-body"),
+        eventBanner: document.getElementById("event-banner"),
+        monsterSprite: document.getElementById("monster-sprite"),
+        heroSprites: document.getElementById("hero-sprites"),
+        modeCampaign: document.getElementById("mode-campaign"),
+        modeInfinite: document.getElementById("mode-infinite"),
+        modeDesc: document.getElementById("mode-desc"),
+        infiniteStats: document.getElementById("infinite-stats"),
+        infiniteWave: document.getElementById("infinite-wave"),
+        infiniteBest: document.getElementById("infinite-best"),
         monsterName: document.getElementById("monster-name"),
         damageFloats: document.getElementById("damage-floats"),
         particles: document.getElementById("particles"),
@@ -159,6 +179,7 @@
         return {
             saveVersion: SAVE_VERSION,
             gold: 0, gems: 0, stage: 1, maxStageReached: 1,
+            mode: "campaign", infiniteWave: 1, infiniteBest: 0, campaignStage: 1,
             monsterHp: 10, monsterMaxHp: 10, baseTapDamage: 1,
             tapUpgrades: {},
             heroes: HEROES.map(function (h) { return { id: h.id, level: 0 }; }),
@@ -168,7 +189,7 @@
             stats: {
                 totalKills: 0, totalTaps: 0, totalBossKills: 0,
                 maxComboReached: 0, legendaryLoot: 0, prestigeCount: 0,
-                chestsOpened: 0, skillsUsed: 0
+                chestsOpened: 0, skillsUsed: 0, infiniteBest: 0
             },
             achievements: {},
             daily: { streak: 0, lastClaim: "", dayIndex: 0 },
@@ -195,6 +216,10 @@
             if (!state.daily) state.daily = { streak: 0, lastClaim: "", dayIndex: 0 };
             if (!state.quests) state.quests = { date: "", items: [], progress: {} };
             if (!state.maxStageReached) state.maxStageReached = state.stage;
+            if (!state.mode) state.mode = "campaign";
+            if (!state.infiniteWave) state.infiniteWave = 1;
+            if (!state.infiniteBest) state.infiniteBest = 0;
+            if (!state.campaignStage) state.campaignStage = state.stage;
             migrateSave();
         } catch (e) {
             state = createInitialState();
@@ -221,6 +246,22 @@
         if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
         if (n >= 1e4) return (n / 1e3).toFixed(1) + "K";
         return Math.floor(n).toLocaleString("fr-FR");
+    }
+
+    function getCurrentEvent() {
+        var week = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+        return WEEKLY_EVENTS[week % WEEKLY_EVENTS.length];
+    }
+
+    function isInfiniteMode() {
+        return state.mode === "infinite";
+    }
+
+    function getEffectiveStage() {
+        if (isInfiniteMode()) {
+            return state.infiniteWave + Math.floor(state.infiniteWave / 5) * 10;
+        }
+        return state.stage;
     }
 
     function getWorld(stage) {
@@ -261,7 +302,8 @@
     }
 
     function getComboMultiplier() {
-        return 1 + (combo / MAX_COMBO);
+        var max = MAX_COMBO * (getCurrentEvent().comboMult || 1);
+        return 1 + (combo / max);
     }
 
     function getTapMultiplier() {
@@ -273,6 +315,7 @@
     function getDpsMultiplier() {
         var mult = relicMultiplier() * (1 + artifactBonus("shield") + getEquipmentBonus("dps"));
         if (activeBuffs.dpsMult) mult *= activeBuffs.dpsMult.value;
+        mult *= getCurrentEvent().dpsMult || 1;
         return mult;
     }
 
@@ -281,6 +324,8 @@
         if (activeBuffs.goldMult) mult *= activeBuffs.goldMult.value;
         if (currentSpecial === "golden") mult *= 15;
         if (currentSpecial === "elite") mult *= 2;
+        mult *= getCurrentEvent().goldMult || 1;
+        if (isInfiniteMode()) mult *= 1 + state.infiniteWave * 0.02;
         return mult;
     }
 
@@ -321,6 +366,7 @@
     function monsterMaxHp(stage) {
         var world = getWorld(stage);
         var base = 10 * Math.pow(1.52, stage - 1) * world.hpMult;
+        if (isInfiniteMode()) base *= Math.pow(1.18, state.infiniteWave);
         if (isBossStage(stage)) base *= 10;
         if (currentSpecial === "elite") base *= 3;
         if (currentSpecial === "golden") base *= 0.6;
@@ -331,7 +377,10 @@
     function goldReward(stage) {
         var world = getWorld(stage);
         var base = 4 * Math.pow(1.42, stage - 1) * world.goldMult;
-        if (isBossStage(stage)) base *= 6;
+        if (isBossStage(stage)) {
+            base *= 6 * (getCurrentEvent().bossGoldMult || 1);
+        }
+        if (isInfiniteMode()) base *= 1 + state.infiniteWave * 0.05;
         return Math.floor(base * getGoldMultiplier());
     }
 
@@ -349,23 +398,27 @@
     }
 
     function spawnMonster() {
+        if (isInfiniteMode()) {
+            state.stage = state.infiniteWave;
+        }
         currentSpecial = rollSpecialType(state.stage);
-        state.monsterMaxHp = monsterMaxHp(state.stage);
+        state.monsterMaxHp = monsterMaxHp(getEffectiveStage());
         state.monsterHp = state.monsterMaxHp;
         var def = getMonsterDef(state.stage);
-        var world = getWorld(state.stage);
+        var world = getWorld(getEffectiveStage());
 
         var prefix = "";
-        if (currentSpecial === "golden") prefix = "✨ DORÉ — ";
+        if (isInfiniteMode()) prefix = "♾️ Vague " + state.infiniteWave + " — ";
+        else if (currentSpecial === "golden") prefix = "✨ DORÉ — ";
         else if (currentSpecial === "elite") prefix = "⚔️ ÉLITE — ";
         else if (currentSpecial === "treasure") prefix = "📦 TRÉSOR — ";
         else if (isBossStage(state.stage)) prefix = "👹 BOSS — ";
 
         els.monsterName.textContent = prefix + def.name;
-        els.monsterBody.className = "monster-body type-" + def.type;
-        if (currentSpecial === "golden") els.monsterBody.classList.add("golden");
-        if (currentSpecial === "treasure") els.monsterBody.classList.add("treasure");
-        if (isBossStage(state.stage) || currentSpecial === "elite") els.monsterBody.classList.add("boss");
+
+        if (spriteEngine) {
+            spriteEngine.setMonster(def.type, currentSpecial, isBossStage(state.stage) || currentSpecial === "elite");
+        }
 
         if (currentSpecial) {
             els.specialTag.textContent = currentSpecial === "golden" ? "×15 OR + 💎" :
@@ -385,10 +438,24 @@
         }
 
         els.gameApp.style.background = world.bg;
-        els.worldName.textContent = world.name;
-        els.worldStage.textContent = "Monde " + world.id;
+        els.worldName.textContent = isInfiniteMode() ? "Mode Infini" : world.name;
+        els.worldStage.textContent = isInfiniteMode() ? "Record: " + state.infiniteBest : "Monde " + world.id;
         els.monster.classList.remove("dead");
+        updateHeroSprites();
         updateHud();
+        renderModeUI();
+    }
+
+    function updateHeroSprites() {
+        if (!spriteEngine) return;
+        var active = [];
+        HEROES.forEach(function (def) {
+            var hero = state.heroes.find(function (h) { return h.id === def.id; });
+            if (hero && hero.level > 0) {
+                active.push({ icon: def.icon, level: hero.level });
+            }
+        });
+        spriteEngine.setHeroes(active);
     }
 
     function startBossTimer() {
@@ -410,8 +477,13 @@
 
     function failBoss() {
         stopBossTimer();
-        state.stage = Math.max(1, state.stage - 5);
-        showToast("Boss échappé ! Retour étape " + state.stage);
+        if (isInfiniteMode()) {
+            state.infiniteWave = Math.max(1, state.infiniteWave - 3);
+            showToast("Boss échappé ! Vague " + state.infiniteWave);
+        } else {
+            state.stage = Math.max(1, state.stage - 5);
+            showToast("Boss échappé ! Retour étape " + state.stage);
+        }
         spawnMonster();
     }
 
@@ -542,17 +614,21 @@
             trackQuest("boss", 1);
         }
         trackQuest("kill", 1);
-        state.totalStages = Math.max(state.totalStages, state.stage);
-        state.maxStageReached = Math.max(state.maxStageReached, state.stage);
+        if (!isInfiniteMode()) {
+            state.totalStages = Math.max(state.totalStages, state.stage);
+            state.maxStageReached = Math.max(state.maxStageReached, state.stage);
+        }
 
-        var world = getWorld(state.stage);
-        if (Math.random() < world.gemChance + artifactBonus("clover")) {
+        var world = getWorld(getEffectiveStage());
+        var gemChance = (world.gemChance + artifactBonus("clover")) * (getCurrentEvent().gemMult || 1);
+        if (Math.random() < gemChance) {
             var gems = currentSpecial === "golden" ? 1 + Math.floor(Math.random() * 3) : 1;
             state.gems += gems;
             showToast("+" + gems + " 💎 gemmes !");
         }
 
-        if (currentSpecial === "treasure" || (Math.random() < 0.04 + artifactBonus("heart"))) {
+        var lootChance = (0.04 + artifactBonus("heart")) * (getCurrentEvent().lootMult || 1);
+        if (currentSpecial === "treasure" || Math.random() < lootChance) {
             var drop = generateLoot(Math.random() < 0.05 ? "gold" : "bronze");
             addLootToInventory(drop);
             showToast("Loot : " + drop.name + " !");
@@ -560,14 +636,24 @@
 
         checkArtifactDiscoveries();
         checkAchievements();
-        els.monster.classList.add("dead");
+        if (spriteEngine) spriteEngine.triggerDie();
         stopBossTimer();
 
         setTimeout(function () {
-            state.stage++;
+            if (isInfiniteMode()) {
+                state.infiniteWave++;
+                if (state.infiniteWave > state.infiniteBest) {
+                    state.infiniteBest = state.infiniteWave;
+                    state.stats.infiniteBest = state.infiniteBest;
+                    checkAchievements();
+                }
+            } else {
+                state.stage++;
+                state.campaignStage = state.stage;
+            }
             spawnMonster();
             renderShop();
-        }, 350);
+        }, 450);
 
         scheduleSave();
     }
@@ -617,6 +703,7 @@
 
         els.monster.classList.add("hit");
         setTimeout(function () { els.monster.classList.remove("hit"); }, 80);
+        if (spriteEngine) spriteEngine.triggerHit();
         spawnParticles(x, y, isCrit);
         dealDamage(damage, isCrit, x, y);
     }
@@ -773,6 +860,7 @@
             if (state.achievements[ach.id]) return;
             var val = ach.stat === "dailyStreak" ? state.daily.streak :
                 ach.stat === "maxComboReached" ? state.stats.maxComboReached :
+                ach.stat === "infiniteBest" ? state.infiniteBest :
                 state.stats[ach.stat] || state[ach.stat] || 0;
             if (val >= ach.target) {
                 state.achievements[ach.id] = true;
@@ -834,8 +922,56 @@
         els.dailyBtn.textContent = available ? "🎁 Daily !" : "🎁 Daily";
     }
 
+    function updateEventBanner() {
+        var ev = getCurrentEvent();
+        els.eventBanner.textContent = ev.icon + " " + ev.name + " — " + ev.desc;
+        els.eventBanner.classList.remove("hidden");
+    }
+
+    function renderModeUI() {
+        var infiniteUnlocked = state.maxStageReached >= INFINITE_UNLOCK;
+        els.modeInfinite.disabled = !infiniteUnlocked;
+        els.modeCampaign.classList.toggle("active", !isInfiniteMode());
+        els.modeInfinite.classList.toggle("active", isInfiniteMode());
+        els.infiniteStats.classList.toggle("hidden", !isInfiniteMode());
+        els.infiniteWave.textContent = state.infiniteWave;
+        els.infiniteBest.textContent = state.infiniteBest;
+        if (!infiniteUnlocked) {
+            els.modeDesc.textContent = "Mode infini débloqué à l'étape " + INFINITE_UNLOCK + ".";
+        } else if (isInfiniteMode()) {
+            els.modeDesc.textContent = "Difficulté infinie — battez votre record de vagues !";
+        } else {
+            els.modeDesc.textContent = "Progression classique avec mondes et boss.";
+        }
+        els.prestigeBtn.style.display = isInfiniteMode() ? "none" : "";
+    }
+
+    function switchMode(mode) {
+        if (mode === "infinite" && state.maxStageReached < INFINITE_UNLOCK) {
+            return showToast("Débloquez le mode infini à l'étape " + INFINITE_UNLOCK + " !");
+        }
+        if (mode === state.mode) return;
+
+        if (mode === "infinite") {
+            state.campaignStage = state.stage;
+            state.mode = "infinite";
+            state.infiniteWave = Math.max(1, state.infiniteWave);
+        } else {
+            state.mode = "campaign";
+            state.stage = state.campaignStage || 1;
+        }
+
+        combo = 0;
+        stopBossTimer();
+        spawnMonster();
+        renderModeUI();
+        updateHud();
+        scheduleSave();
+        showToast(mode === "infinite" ? "Mode Infini activé !" : "Retour en Campagne");
+    }
+
     function updateHud() {
-        els.stage.textContent = state.stage;
+        els.stage.textContent = isInfiniteMode() ? state.infiniteWave : state.stage;
         els.gold.textContent = formatNumber(state.gold);
         els.gems.textContent = formatNumber(state.gems);
         els.dps.textContent = formatNumber(getTotalDps());
@@ -846,10 +982,11 @@
         els.relicBonus.textContent = "+" + Math.round((relicMultiplier() - 1) * 100) + "%";
         var gain = calcRelicsGain();
         els.relicsGain.textContent = gain;
-        els.prestigeBtn.disabled = state.stage < PRESTIGE_MIN_STAGE;
+        els.prestigeBtn.disabled = isInfiniteMode() || state.stage < PRESTIGE_MIN_STAGE;
         els.prestigeBtn.textContent = state.stage >= PRESTIGE_MIN_STAGE
             ? "Prestige (+" + gain + " reliques)" : "Prestige (étape " + PRESTIGE_MIN_STAGE + "+)";
         trackQuest("stage", 0);
+        renderModeUI();
     }
 
     function calcRelicsGain() {
@@ -861,6 +998,7 @@
         if (state.gold < cost) return;
         state.gold -= cost;
         state.heroes.find(function (h) { return h.id === heroId; }).level++;
+        updateHeroSprites();
         updateHud(); renderShop(); scheduleSave();
     }
 
@@ -897,7 +1035,10 @@
             achievements: Object.assign({}, state.achievements),
             stats: Object.assign({}, state.stats),
             daily: Object.assign({}, state.daily),
-            gems: state.gems
+            gems: state.gems,
+            infiniteBest: state.infiniteBest,
+            mode: state.mode,
+            campaignStage: 1
         };
         kept.stats.prestigeCount = (kept.stats.prestigeCount || 0) + 1;
 
@@ -910,6 +1051,10 @@
         state.stats = kept.stats;
         state.daily = kept.daily;
         state.gems = kept.gems;
+        state.infiniteBest = kept.infiniteBest;
+        state.stats.infiniteBest = kept.infiniteBest;
+        state.mode = kept.mode === "infinite" ? "campaign" : kept.mode;
+        state.campaignStage = 1;
 
         activeBuffs = {};
         skillCooldowns = {};
@@ -1041,6 +1186,7 @@
             var done = !!state.achievements[ach.id];
             var val = ach.stat === "dailyStreak" ? state.daily.streak :
                 ach.stat === "maxComboReached" ? state.stats.maxComboReached :
+                ach.stat === "infiniteBest" ? state.infiniteBest :
                 state.stats[ach.stat] || 0;
             var li = document.createElement("li");
             li.className = "item-card" + (done ? " achievement-done" : "");
@@ -1096,7 +1242,13 @@
         loadSave();
         initQuests();
         checkArtifactDiscoveries();
+
+        spriteEngine = new SpriteEngine(els.monsterSprite, els.heroSprites);
+        spriteEngine.resize();
+        spriteEngine.startLoop();
+
         initTabs();
+        updateEventBanner();
         spawnMonster();
         renderShop();
         renderLoot();
@@ -1113,6 +1265,8 @@
         els.chestGold.addEventListener("click", function () { openChest("gold"); });
         els.chestLegend.addEventListener("click", function () { openChest("legend"); });
         els.modalClose.addEventListener("click", function () { els.modalOverlay.classList.add("hidden"); });
+        els.modeCampaign.addEventListener("click", function () { switchMode("campaign"); });
+        els.modeInfinite.addEventListener("click", function () { switchMode("infinite"); });
 
         animateParticles();
         requestAnimationFrame(gameLoop);

@@ -66,9 +66,107 @@ html, body {
     letter-spacing: 0.06em;
 }
 
-.world-stage {
-    font-size: 0.7rem;
+.world-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.event-banner {
+    font-size: 0.65rem;
+    color: var(--gold);
+    background: rgba(255, 209, 102, 0.12);
+    padding: 2px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 209, 102, 0.25);
+    animation: pulse 2s infinite;
+    max-width: 180px;
+    text-align: right;
+    line-height: 1.2;
+}
+
+.event-banner.hidden { display: none; }
+
+.monster-sprite {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-sprites {
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 36px;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.monster.hidden { display: none; }
+
+.mode-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 10px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--bg-card);
     color: var(--text-dim);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.mode-btn.active {
+    border-color: var(--accent);
+    background: rgba(255, 107, 53, 0.2);
+    color: var(--accent-glow);
+}
+
+.mode-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.mode-desc {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.infinite-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--bg-card);
+    border-radius: 10px;
+}
+
+.infinite-stats.hidden { display: none; }
+
+.infinite-stats .label {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    display: block;
+}
+
+.prestige-title {
+    color: var(--accent-glow);
+    margin: 12px 0 8px;
+    font-size: 1rem;
 }
 
 .hud-row-sub {
