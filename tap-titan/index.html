@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Tap Titan">
     <meta name="theme-color" content="#1a0a2e">
+    <link rel="manifest" href="manifest.json">
     <title>Tap Titan — Idle Clicker</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -32,13 +34,14 @@
             <div id="boss-timer" class="boss-timer hidden">
                 <span>Boss — </span><span id="boss-timer-text">30s</span>
             </div>
+            <div id="active-buffs" class="active-buffs"></div>
         </header>
 
         <main class="battle-area">
             <div id="monster-zone" class="monster-zone" role="button" aria-label="Tapper pour attaquer">
                 <canvas id="particles" class="particles"></canvas>
                 <div id="monster" class="monster">
-                    <div class="monster-body">
+                    <div id="monster-body" class="monster-body type-0">
                         <div class="monster-eye left"></div>
                         <div class="monster-eye right"></div>
                         <div class="monster-mouth"></div>
@@ -49,9 +52,12 @@
             <div id="damage-floats" class="damage-floats" aria-hidden="true"></div>
         </main>
 
+        <div id="skills-bar" class="skills-bar"></div>
+
         <nav class="tabs">
             <button class="tab active" data-tab="heroes">Héros</button>
-            <button class="tab" data-tab="upgrades">Améliorations</button>
+            <button class="tab" data-tab="upgrades">Amélior.</button>
+            <button class="tab" data-tab="artifacts">Artefacts</button>
             <button class="tab" data-tab="prestige">Prestige</button>
         </nav>
 
@@ -61,6 +67,10 @@
             </div>
             <div id="panel-upgrades" class="panel-content">
                 <ul id="upgrade-list" class="item-list"></ul>
+            </div>
+            <div id="panel-artifacts" class="panel-content">
+                <p class="panel-hint">Découvrez des artefacts en progressant. Améliorez-les avec des reliques.</p>
+                <ul id="artifact-list" class="item-list"></ul>
             </div>
             <div id="panel-prestige" class="panel-content">
                 <div class="prestige-box">

@@ -1,0 +1,25 @@
+{
+    "name": "Tap Titan",
+    "short_name": "Tap Titan",
+    "description": "Jeu idle clicker mobile inspiré de Tap Titans",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#0d0618",
+    "theme_color": "#1a0a2e",
+    "lang": "fr",
+    "icons": [
+        {
+            "src": "icons/icon-192.svg",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-512.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}
