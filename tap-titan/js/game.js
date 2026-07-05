@@ -146,6 +146,7 @@
         infiniteWave: document.getElementById("infinite-wave"),
         infiniteBest: document.getElementById("infinite-best"),
         monsterName: document.getElementById("monster-name"),
+        monsterPrefix: document.getElementById("monster-prefix"),
         damageFloats: document.getElementById("damage-floats"),
         particles: document.getElementById("particles"),
         skillsBar: document.getElementById("skills-bar"),
@@ -413,13 +414,22 @@
         var world = getWorld(getEffectiveStage());
 
         var prefix = "";
-        if (isInfiniteMode()) prefix = "♾️ Vague " + state.infiniteWave + " — ";
-        else if (currentSpecial === "golden") prefix = "✨ DORÉ — ";
-        else if (currentSpecial === "elite") prefix = "⚔️ ÉLITE — ";
-        else if (currentSpecial === "treasure") prefix = "📦 TRÉSOR — ";
-        else if (isBossStage(state.stage)) prefix = "👹 BOSS — ";
+        var name = def.name;
+        if (isInfiniteMode()) {
+            prefix = "♾️ Vague " + state.infiniteWave;
+        } else if (currentSpecial === "golden") {
+            prefix = "✨ DORÉ";
+        } else if (currentSpecial === "elite") {
+            prefix = "⚔️ ÉLITE";
+        } else if (currentSpecial === "treasure") {
+            prefix = "📦 TRÉSOR";
+        } else if (isBossStage(state.stage)) {
+            prefix = "👹 BOSS";
+        }
 
-        els.monsterName.textContent = prefix + def.name;
+        els.monsterPrefix.textContent = prefix;
+        els.monsterName.textContent = name;
+        els.monsterPrefix.style.display = prefix ? "inline" : "none";
 
         if (spriteEngine) {
             spriteEngine.setMonster(def.type, currentSpecial, isBossStage(state.stage) || currentSpecial === "elite");
@@ -1088,9 +1098,10 @@
             li.className = "item-card hero-card" + (canBuy ? "" : " disabled");
 
             var dpsLine = hero.level === 0
-                ? '<span class="hero-dps-current inactive">⚡ ' + formatNumber(nextDps) + ' DPS/s une fois recruté</span>'
-                : '<span class="hero-dps-current">⚡ ' + formatNumber(dps) + ' DPS/s</span>' +
-                  '<span class="hero-dps-next">+' + formatNumber(dpsGain) + ' DPS au prochain niv.</span>';
+                ? '<span class="hero-dps-current hero-dps-preview">⚡ ' + formatNumber(nextDps) + ' <small>DPS/s</small></span>' +
+                  '<span class="hero-dps-next">Dégâts auto une fois recruté</span>'
+                : '<span class="hero-dps-current">⚡ ' + formatNumber(dps) + ' <small>DPS/s</small></span>' +
+                  '<span class="hero-dps-next">+' + formatNumber(dpsGain) + ' DPS/s au prochain niv.</span>';
 
             li.innerHTML =
                 '<div class="item-icon">' + def.icon + '</div>' +

@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#1a0a2e">
     <link rel="manifest" href="manifest.json">
     <title>Tap Titan — Idle Clicker</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body>
     <div id="game-app">
@@ -39,6 +39,10 @@
                 <div class="stat"><span class="stat-label">Combo</span><span id="combo-display" class="stat-value combo-value">×1</span></div>
                 <button id="daily-btn" class="daily-btn" type="button">🎁 Daily</button>
             </div>
+            <div id="active-buffs" class="active-buffs"></div>
+        </header>
+
+        <section class="combat-strip" aria-label="Informations combat">
             <div class="hp-bar-wrap">
                 <div id="hp-bar" class="hp-bar"></div>
                 <span id="hp-text" class="hp-text">10 / 10</span>
@@ -47,8 +51,11 @@
             <div id="boss-timer" class="boss-timer hidden">
                 <span>Boss — </span><span id="boss-timer-text">30s</span>
             </div>
-            <div id="active-buffs" class="active-buffs"></div>
-        </header>
+            <div class="monster-name-wrap">
+                <span id="monster-prefix" class="monster-prefix"></span>
+                <span id="monster-name" class="monster-name">Gobelin des cavernes</span>
+            </div>
+        </section>
 
         <main class="battle-area" id="battle-area">
             <div id="monster-zone" class="monster-zone" role="button" aria-label="Tapper pour attaquer">
@@ -57,7 +64,6 @@
                 <canvas id="hero-sprites" class="hero-sprites"></canvas>
                 <div id="monster" class="monster hidden"></div>
             </div>
-            <div id="monster-name" class="monster-name">Gobelin des cavernes</div>
             <div id="damage-floats" class="damage-floats" aria-hidden="true"></div>
         </main>
 
@@ -135,7 +141,7 @@
 
     <div id="toast" class="toast hidden"></div>
 
-    <script src="js/sprites.js"></script>
-    <script src="js/game.js"></script>
+    <script src="js/sprites.js?v=6"></script>
+    <script src="js/game.js?v=6"></script>
 </body>
 </html>

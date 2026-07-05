@@ -171,7 +171,64 @@ html, body {
 }
 
 .hud-row-sub {
+    margin-bottom: 6px;
+}
+
+.combat-strip {
+    flex-shrink: 0;
+    padding: 0 14px 10px;
+    background: rgba(13, 6, 24, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 9;
+}
+
+.combat-strip .hp-bar-wrap {
     margin-bottom: 8px;
+}
+
+.combat-strip .special-tag {
+    margin-top: 0;
+    margin-bottom: 6px;
+}
+
+.combat-strip .boss-timer {
+    margin-top: 0;
+    margin-bottom: 6px;
+}
+
+.monster-name-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 28px;
+    padding: 6px 10px;
+    background: rgba(37, 21, 64, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.monster-prefix {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255, 107, 53, 0.25);
+    color: var(--accent-glow);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+}
+
+.monster-name {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #fff;
+    font-weight: 700;
+    line-height: 1.3;
+    word-break: break-word;
 }
 
 .stat-gems {
@@ -476,21 +533,6 @@ html, body {
     height: 12%;
     background: #2d1b4e;
     border-radius: 0 0 50% 50%;
-}
-
-.monster-name {
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--text);
-    font-weight: 600;
-    line-height: 1.3;
-    padding: 6px 14px;
-    background: rgba(13, 6, 24, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    max-width: min(90vw, 320px);
-    flex-shrink: 0;
-    z-index: 5;
 }
 
 .damage-floats {
@@ -894,27 +936,39 @@ html, body {
 .hero-dps-block {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
+    padding: 6px 8px;
+    margin-top: 2px;
+    background: rgba(76, 201, 240, 0.08);
+    border-left: 3px solid #4cc9f0;
+    border-radius: 0 6px 6px 0;
 }
 
 .hero-dps-current {
     display: inline-flex;
-    align-items: center;
+    align-items: baseline;
     gap: 4px;
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.95rem;
+    font-weight: 800;
     color: #4cc9f0;
+    text-shadow: 0 0 12px rgba(76, 201, 240, 0.35);
 }
 
-.hero-dps-current.inactive {
-    color: var(--text-dim);
-    font-weight: 600;
+.hero-dps-current small {
+    font-size: 0.7rem;
+    font-weight: 700;
+    opacity: 0.85;
+}
+
+.hero-dps-current.hero-dps-preview {
+    color: #ffd166;
+    text-shadow: 0 0 10px rgba(255, 209, 102, 0.3);
 }
 
 .hero-dps-next {
-    font-size: 0.7rem;
-    color: var(--hp-green);
-    font-weight: 600;
+    font-size: 0.75rem;
+    color: #06d6a0;
+    font-weight: 700;
 }
 
 .hero-cost-block {
