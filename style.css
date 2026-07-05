@@ -56,3 +56,14 @@ h1 {
     color: white;
     box-shadow: 2px 2px 20px #404040;
 }
+
+.btn-game {
+    border: 2px solid #7b2cbf;
+    background: linear-gradient(135deg, #7b2cbf, #ff6b35);
+    color: white;
+}
+
+.btn-game:hover {
+    box-shadow: 2px 2px 20px #7b2cbf;
+    opacity: 0.9;
+}

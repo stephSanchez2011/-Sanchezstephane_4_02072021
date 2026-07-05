@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a0a2e">
+    <title>Tap Titan — Idle Clicker</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-app">
+        <header class="hud">
+            <div class="hud-row">
+                <div class="stat">
+                    <span class="stat-label">Étape</span>
+                    <span id="stage-display" class="stat-value">1</span>
+                </div>
+                <div class="stat stat-gold">
+                    <span class="stat-icon">🪙</span>
+                    <span id="gold-display" class="stat-value">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">DPS</span>
+                    <span id="dps-display" class="stat-value">0</span>
+                </div>
+            </div>
+            <div class="hp-bar-wrap">
+                <div id="hp-bar" class="hp-bar"></div>
+                <span id="hp-text" class="hp-text">10 / 10</span>
+            </div>
+            <div id="boss-timer" class="boss-timer hidden">
+                <span>Boss — </span><span id="boss-timer-text">30s</span>
+            </div>
+        </header>
+
+        <main class="battle-area">
+            <div id="monster-zone" class="monster-zone" role="button" aria-label="Tapper pour attaquer">
+                <canvas id="particles" class="particles"></canvas>
+                <div id="monster" class="monster">
+                    <div class="monster-body">
+                        <div class="monster-eye left"></div>
+                        <div class="monster-eye right"></div>
+                        <div class="monster-mouth"></div>
+                    </div>
+                </div>
+                <div id="monster-name" class="monster-name">Gobelin des cavernes</div>
+            </div>
+            <div id="damage-floats" class="damage-floats" aria-hidden="true"></div>
+        </main>
+
+        <nav class="tabs">
+            <button class="tab active" data-tab="heroes">Héros</button>
+            <button class="tab" data-tab="upgrades">Améliorations</button>
+            <button class="tab" data-tab="prestige">Prestige</button>
+        </nav>
+
+        <section class="panel">
+            <div id="panel-heroes" class="panel-content active">
+                <ul id="hero-list" class="item-list"></ul>
+            </div>
+            <div id="panel-upgrades" class="panel-content">
+                <ul id="upgrade-list" class="item-list"></ul>
+            </div>
+            <div id="panel-prestige" class="panel-content">
+                <div class="prestige-box">
+                    <h2>Prestige</h2>
+                    <p>Recommencez avec des bonus permanents. Gagnez des reliques selon votre progression.</p>
+                    <div class="prestige-stats">
+                        <div><span class="label">Reliques</span><span id="relics-display">0</span></div>
+                        <div><span class="label">Bonus dégâts</span><span id="relic-bonus">+0%</span></div>
+                        <div><span class="label">Reliques au reset</span><span id="relics-gain">0</span></div>
+                    </div>
+                    <button id="prestige-btn" class="btn-prestige" disabled>Prestige (étape 50+)</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="js/game.js"></script>
+</body>
+</html>
