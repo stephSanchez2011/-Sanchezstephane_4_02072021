@@ -2,9 +2,11 @@
     "use strict";
 
     const SAVE_KEY = "tapTitanSave";
-    const SAVE_VERSION = 4;
+    const SAVE_VERSION = 5;
     const BOSS_INTERVAL = 10;
+    const TITAN_INTERVAL = 50;
     const BOSS_TIMER_SEC = 30;
+    const TITAN_TIMER_SEC = 45;
     const PRESTIGE_MIN_STAGE = 50;
     const INFINITE_UNLOCK = 100;
     const BASE_CRIT_CHANCE = 0.1;
@@ -12,62 +14,18 @@
     const COMBO_TIMEOUT = 1200;
     const MAX_COMBO = 30;
 
-    const WORLDS = [
-        { id: 1, name: "Forêt sombre", minStage: 1, hpMult: 1, goldMult: 1, gemChance: 0.01, bg: "radial-gradient(ellipse at 50% 30%, #2a1450 0%, #0d0618 70%)" },
-        { id: 2, name: "Ruines englouties", minStage: 75, hpMult: 2.2, goldMult: 1.6, gemChance: 0.015, bg: "radial-gradient(ellipse at 50% 30%, #1a3040 0%, #081018 70%)" },
-        { id: 3, name: "Pics gelés", minStage: 200, hpMult: 5, goldMult: 2.5, gemChance: 0.02, bg: "radial-gradient(ellipse at 50% 30%, #1a3555 0%, #081220 70%)" },
-        { id: 4, name: "Volcan infernal", minStage: 500, hpMult: 12, goldMult: 4, gemChance: 0.025, bg: "radial-gradient(ellipse at 50% 30%, #4a1510 0%, #180808 70%)" },
-        { id: 5, name: "Cité des titans", minStage: 1000, hpMult: 30, goldMult: 8, gemChance: 0.03, bg: "radial-gradient(ellipse at 50% 30%, #3a2060 0%, #100818 70%)" },
-        { id: 6, name: "Néant cosmique", minStage: 2500, hpMult: 80, goldMult: 18, gemChance: 0.04, bg: "radial-gradient(ellipse at 50% 30%, #150820 0%, #050210 70%)" }
-    ];
-
-    const MONSTERS = [
-        { name: "Gobelin des cavernes", type: 0 }, { name: "Slime visqueux", type: 1 },
-        { name: "Araignée géante", type: 2 }, { name: "Squelette errant", type: 3 },
-        { name: "Orc sauvage", type: 4 }, { name: "Chauve-souris démoniaque", type: 5 },
-        { name: "Golem de pierre", type: 6 }, { name: "Spectre hurlant", type: 7 },
-        { name: "Hydre des marais", type: 8 }, { name: "Dragonnet", type: 9 },
-        { name: "Liche maudite", type: 3 }, { name: "Démon mineur", type: 5 },
-        { name: "Colosse de lave", type: 6 }, { name: "Wyrm ancien", type: 9 }
-    ];
-
-    const HEROES = [
-        { id: "warrior", name: "Guerrier", icon: "⚔️", baseDps: 1, baseCost: 15, costMult: 1.07 },
-        { id: "archer", name: "Archer", icon: "🏹", baseDps: 4, baseCost: 100, costMult: 1.08 },
-        { id: "mage", name: "Mage", icon: "🔮", baseDps: 15, baseCost: 500, costMult: 1.09 },
-        { id: "knight", name: "Chevalier", icon: "🛡️", baseDps: 50, baseCost: 2500, costMult: 1.1 },
-        { id: "assassin", name: "Assassin", icon: "🗡️", baseDps: 200, baseCost: 12000, costMult: 1.11 },
-        { id: "paladin", name: "Paladin", icon: "✨", baseDps: 800, baseCost: 60000, costMult: 1.12 },
-        { id: "necro", name: "Nécromancien", icon: "💀", baseDps: 3500, baseCost: 300000, costMult: 1.13 },
-        { id: "dragonslayer", name: "Tueur de dragons", icon: "🐉", baseDps: 15000, baseCost: 1500000, costMult: 1.14 }
-    ];
-
-    const UPGRADES = [
-        { id: "tap1", name: "Force du poing", icon: "👊", desc: "+2 dégâts par tap", baseCost: 50, tapBonus: 2 },
-        { id: "tap2", name: "Gants renforcés", icon: "🥊", desc: "+5 dégâts par tap", baseCost: 250, tapBonus: 5 },
-        { id: "tap3", name: "Art martial", icon: "🥋", desc: "+15 dégâts par tap", baseCost: 1000, tapBonus: 15 },
-        { id: "tap4", name: "Frappe légendaire", icon: "💥", desc: "+50 dégâts par tap", baseCost: 5000, tapBonus: 50 },
-        { id: "tap5", name: "Poing divin", icon: "✊", desc: "+200 dégâts par tap", baseCost: 25000, tapBonus: 200 },
-        { id: "tap6", name: "Frappe titanesque", icon: "🌟", desc: "+1000 dégâts par tap", baseCost: 150000, tapBonus: 1000 }
-    ];
-
-    const SKILLS = [
-        { id: "warCry", name: "Cri de guerre", icon: "📣", desc: "×2 tap", duration: 30, cooldown: 120, effect: "tapMult", value: 2 },
-        { id: "midas", name: "Main de Midas", icon: "✋", desc: "×10 or", duration: 30, cooldown: 180, effect: "goldMult", value: 10 },
-        { id: "lightning", name: "Foudre", icon: "⚡", desc: "−20% PV", duration: 0, cooldown: 60, effect: "instantDmg", value: 0.2 },
-        { id: "fury", name: "Furie héroïque", icon: "🔥", desc: "×5 DPS", duration: 30, cooldown: 150, effect: "dpsMult", value: 5 }
-    ];
-
-    const ARTIFACTS = [
-        { id: "sword", name: "Lame du titan", icon: "🗡️", unlockStage: 15, desc: "+3% tap / niv.", perLevel: 0.03 },
-        { id: "shield", name: "Bouclier ancien", icon: "🛡️", unlockStage: 25, desc: "+5% DPS / niv.", perLevel: 0.05 },
-        { id: "coin", name: "Pièce maudite", icon: "🪙", unlockStage: 35, desc: "+8% or / niv.", perLevel: 0.08 },
-        { id: "eye", name: "Œil du chasseur", icon: "👁️", unlockStage: 45, desc: "+2% crit / niv.", perLevel: 0.02 },
-        { id: "hourglass", name: "Sablier du boss", icon: "⏳", unlockStage: 55, desc: "+3s boss / niv.", perLevel: 3 },
-        { id: "book", name: "Grimoire oublié", icon: "📖", unlockStage: 70, desc: "−3% coût / niv.", perLevel: 0.03 },
-        { id: "heart", name: "Cœur de cristal", icon: "💎", unlockStage: 120, desc: "+1% loot / niv.", perLevel: 0.01 },
-        { id: "clover", name: "Trèfle doré", icon: "🍀", unlockStage: 200, desc: "+1% gems / niv.", perLevel: 0.01 }
-    ];
+    const C = window.TT_CONTENT;
+    const WORLDS = C.WORLDS;
+    const MONSTERS = C.MONSTERS;
+    const TITANS = C.TITANS;
+    const HEROES = C.HEROES;
+    const UPGRADES = C.UPGRADES;
+    const SKILLS = C.SKILLS;
+    const ARTIFACTS = C.ARTIFACTS;
+    const PETS = C.PETS;
+    const LOOT_NAMES = C.LOOT_NAMES;
+    const ACHIEVEMENTS = C.ACHIEVEMENTS;
+    const WEEKLY_EVENTS = C.WEEKLY_EVENTS;
 
     const RARITY = {
         common: { label: "Commun", color: "#adb5bd", mult: 1, weight: 55 },
@@ -76,46 +34,15 @@
         legendary: { label: "Légendaire", color: "#ffbe0b", mult: 15, weight: 4 }
     };
 
-    const LOOT_NAMES = {
-        weapon: ["Dague", "Épée", "Hache", "Marteau titan"],
-        armor: ["Cuirasse", "Plastron", "Robe magique", "Armure runique"],
-        ring: ["Anneau de force", "Bague d'or", "Sceau du crit", "Anneau du titan"]
-    };
-
     const DAILY_REWARDS = [
         { gold: 200 }, { gold: 800 }, { gems: 2 }, { gold: 3000 },
         { gems: 5 }, { chest: "bronze" }, { gems: 12, gold: 10000, chest: "gold" }
     ];
 
-    const ACHIEVEMENTS = [
-        { id: "kills10", name: "Chasseur novice", desc: "Tuer 10 monstres", icon: "🎯", target: 10, stat: "totalKills", reward: { gems: 1 } },
-        { id: "kills100", name: "Exterminateur", desc: "Tuer 100 monstres", icon: "💀", target: 100, stat: "totalKills", reward: { gems: 3 } },
-        { id: "kills1000", name: "Génocide", desc: "Tuer 1000 monstres", icon: "☠️", target: 1000, stat: "totalKills", reward: { gems: 10 } },
-        { id: "stage50", name: "Halfway hero", desc: "Atteindre l'étape 50", icon: "🏔️", target: 50, stat: "maxStageReached", reward: { gems: 5 } },
-        { id: "stage200", name: "Explorateur", desc: "Atteindre l'étape 200", icon: "🗺️", target: 200, stat: "maxStageReached", reward: { gems: 15 } },
-        { id: "stage500", name: "Conquérant", desc: "Atteindre l'étape 500", icon: "👑", target: 500, stat: "maxStageReached", reward: { gems: 30 } },
-        { id: "boss10", name: "Tueur de boss", desc: "Vaincre 10 boss", icon: "👹", target: 10, stat: "totalBossKills", reward: { gems: 5 } },
-        { id: "combo20", name: "Doigts de feu", desc: "Combo ×30", icon: "🔥", target: 30, stat: "maxComboReached", reward: { gems: 3 } },
-        { id: "legendary", name: "Fortune", desc: "Obtenir un loot légendaire", icon: "🌟", target: 1, stat: "legendaryLoot", reward: { gems: 20 } },
-        { id: "prestige1", name: "Renaissance", desc: "Faire 1 prestige", icon: "♻️", target: 1, stat: "prestigeCount", reward: { gems: 10 } },
-        { id: "streak7", name: "Fidèle", desc: "7 jours de connexion", icon: "📅", target: 7, stat: "dailyStreak", reward: { gems: 15 } },
-        { id: "infinite20", name: "Vague sans fin", desc: "Vague 20 en mode infini", icon: "♾️", target: 20, stat: "infiniteBest", reward: { gems: 8 } },
-        { id: "infinite50", name: "Éternel", desc: "Vague 50 en mode infini", icon: "🌀", target: 50, stat: "infiniteBest", reward: { gems: 25 } }
-    ];
-
-    const WEEKLY_EVENTS = [
-        { id: "goldRush", name: "Ruée vers l'or", icon: "🪙", desc: "×2 or", goldMult: 2 },
-        { id: "gemHunt", name: "Chasse aux gemmes", icon: "💎", desc: "×3 gemmes", gemMult: 3 },
-        { id: "comboFest", name: "Festival combo", icon: "🔥", desc: "×2 combo max", comboMult: 2 },
-        { id: "bossHunt", name: "Chasse au boss", icon: "👹", desc: "×3 or boss", bossGoldMult: 3 },
-        { id: "lootRain", name: "Pluie de loot", icon: "📦", desc: "×2 loot", lootMult: 2 },
-        { id: "heroFury", name: "Furie des héros", icon: "⚔️", desc: "×1.5 DPS", dpsMult: 1.5 }
-    ];
-
     let state, activeBuffs = {}, skillCooldowns = {}, bossTimer = null;
     let bossTimeLeft = BOSS_TIMER_SEC, lastTick = performance.now(), saveTimer = null;
     let dpsAccumulator = 0, combo = 0, lastTapTime = 0, currentSpecial = null;
-    let lootIdCounter = 0, spriteEngine = null;
+    let isTitanFight = false, lootIdCounter = 0, spriteEngine = null;
 
     const els = {
         gameApp: document.getElementById("game-app"),
@@ -156,6 +83,9 @@
         slotWeapon: document.getElementById("slot-weapon"),
         slotArmor: document.getElementById("slot-armor"),
         slotRing: document.getElementById("slot-ring"),
+        slotAmulet: document.getElementById("slot-amulet"),
+        petList: document.getElementById("pet-list"),
+        codexList: document.getElementById("codex-list"),
         inventoryList: document.getElementById("inventory-list"),
         chestBronze: document.getElementById("chest-bronze"),
         chestGold: document.getElementById("chest-gold"),
@@ -185,12 +115,15 @@
             tapUpgrades: {},
             heroes: HEROES.map(function (h) { return { id: h.id, level: 0 }; }),
             artifacts: {}, relics: 0, totalStages: 0,
-            equipment: { weapon: null, armor: null, ring: null },
+            equipment: { weapon: null, armor: null, ring: null, amulet: null },
             inventory: [],
+            pets: {},
+            codex: {},
             stats: {
-                totalKills: 0, totalTaps: 0, totalBossKills: 0,
+                totalKills: 0, totalTaps: 0, totalBossKills: 0, titansKilled: 0,
                 maxComboReached: 0, legendaryLoot: 0, prestigeCount: 0,
-                chestsOpened: 0, skillsUsed: 0, infiniteBest: 0
+                chestsOpened: 0, skillsUsed: 0, infiniteBest: 0,
+                petsOwned: 0, codexCount: 0
             },
             achievements: {},
             daily: { streak: 0, lastClaim: "", dayIndex: 0 },
@@ -210,7 +143,9 @@
             var saved = JSON.parse(raw);
             state = Object.assign(createInitialState(), saved);
             if (!state.artifacts) state.artifacts = {};
-            if (!state.equipment) state.equipment = { weapon: null, armor: null, ring: null };
+            if (!state.equipment) state.equipment = { weapon: null, armor: null, ring: null, amulet: null };
+            if (!state.pets) state.pets = {};
+            if (!state.codex) state.codex = {};
             if (!state.inventory) state.inventory = [];
             if (!state.stats) state.stats = createInitialState().stats;
             if (!state.achievements) state.achievements = {};
@@ -273,7 +208,45 @@
         return world;
     }
 
-    function isBossStage(stage) { return stage % BOSS_INTERVAL === 0; }
+    function isTitanStage(stage) {
+        return stage >= TITAN_INTERVAL && stage % TITAN_INTERVAL === 0;
+    }
+
+    function isBossStage(stage) {
+        return stage % BOSS_INTERVAL === 0 && !isTitanStage(stage);
+    }
+
+    function getTitanDef(stage) {
+        return TITANS[Math.floor(stage / TITAN_INTERVAL - 1) % TITANS.length];
+    }
+
+    function getPetCost(pet) {
+        var discount = getCurrentEvent().petDiscount || 0;
+        return Math.max(1, Math.floor(pet.cost * (1 - discount)));
+    }
+
+    function countOwnedPets() {
+        return Object.keys(state.pets).filter(function (id) { return state.pets[id]; }).length;
+    }
+
+    function getPetBonus(type) {
+        var total = 0;
+        var petMult = 1 + artifactBonus("sun");
+        PETS.forEach(function (pet) {
+            if (state.pets[pet.id] && pet.bonus[type]) total += pet.bonus[type];
+        });
+        return total * petMult;
+    }
+
+    function getCodexCount() {
+        return Object.keys(state.codex).length;
+    }
+
+    function recordCodex(name) {
+        if (!state.codex[name]) state.codex[name] = 0;
+        state.codex[name]++;
+        state.stats.codexCount = getCodexCount();
+    }
 
     function getArtifactLevel(id) { return state.artifacts[id] || 0; }
 
@@ -289,17 +262,17 @@
 
     function getEquipmentBonus(type) {
         var total = 0;
-        ["weapon", "armor", "ring"].forEach(function (slot) {
+        ["weapon", "armor", "ring", "amulet"].forEach(function (slot) {
             var item = state.equipment[slot];
             if (item && item.bonus && item.bonus[type]) total += item.bonus[type];
         });
-        return total;
+        return total + getPetBonus(type);
     }
 
     function relicMultiplier() { return 1 + state.relics * 0.05; }
 
     function getCritChance() {
-        return Math.min(0.6, BASE_CRIT_CHANCE + artifactBonus("eye") + getEquipmentBonus("crit"));
+        return Math.min(0.75, BASE_CRIT_CHANCE + artifactBonus("eye") + getEquipmentBonus("crit"));
     }
 
     function getComboMultiplier() {
@@ -373,7 +346,11 @@
         var world = getWorld(stage);
         var base = 10 * Math.pow(1.52, stage - 1) * world.hpMult;
         if (isInfiniteMode()) base *= Math.pow(1.18, state.infiniteWave);
-        if (isBossStage(stage)) base *= 10;
+        if (isTitanStage(stage)) {
+            base *= getTitanDef(stage).hpMult;
+        } else if (isBossStage(stage)) {
+            base *= 10;
+        }
         if (currentSpecial === "elite") base *= 3;
         if (currentSpecial === "golden") base *= 0.6;
         if (currentSpecial === "treasure") base *= 2;
@@ -383,15 +360,17 @@
     function goldReward(stage) {
         var world = getWorld(stage);
         var base = 4 * Math.pow(1.42, stage - 1) * world.goldMult;
-        if (isBossStage(stage)) {
-            base *= 6 * (getCurrentEvent().bossGoldMult || 1);
+        if (isTitanStage(stage)) {
+            base *= 25 * (getCurrentEvent().titanMult || 1);
+        } else if (isBossStage(stage)) {
+            base *= 6 * (getCurrentEvent().bossGoldMult || 1) * (1 + artifactBonus("skull"));
         }
         if (isInfiniteMode()) base *= 1 + state.infiniteWave * 0.05;
         return Math.floor(base * getGoldMultiplier());
     }
 
     function rollSpecialType(stage) {
-        if (isBossStage(stage)) return null;
+        if (isBossStage(stage) || isTitanStage(stage)) return null;
         if (stage % 5 === 0) return "elite";
         var r = Math.random();
         if (r < 0.015) return "treasure";
@@ -407,35 +386,35 @@
         if (isInfiniteMode()) {
             state.stage = state.infiniteWave;
         }
+        isTitanFight = isTitanStage(state.stage);
         currentSpecial = rollSpecialType(state.stage);
         state.monsterMaxHp = monsterMaxHp(getEffectiveStage());
         state.monsterHp = state.monsterMaxHp;
         var def = getMonsterDef(state.stage);
         var world = getWorld(getEffectiveStage());
+        var titanDef = isTitanFight ? getTitanDef(state.stage) : null;
 
         var prefix = "";
-        var name = def.name;
-        if (isInfiniteMode()) {
-            prefix = "♾️ Vague " + state.infiniteWave;
-        } else if (currentSpecial === "golden") {
-            prefix = "✨ DORÉ";
-        } else if (currentSpecial === "elite") {
-            prefix = "⚔️ ÉLITE";
-        } else if (currentSpecial === "treasure") {
-            prefix = "📦 TRÉSOR";
-        } else if (isBossStage(state.stage)) {
-            prefix = "👹 BOSS";
-        }
+        var name = titanDef ? titanDef.name : def.name;
+        if (isInfiniteMode()) prefix = "♾️ Vague " + state.infiniteWave;
+        else if (isTitanFight) prefix = (titanDef.icon || "💀") + " TITAN";
+        else if (currentSpecial === "golden") prefix = "✨ DORÉ";
+        else if (currentSpecial === "elite") prefix = "⚔️ ÉLITE";
+        else if (currentSpecial === "treasure") prefix = "📦 TRÉSOR";
+        else if (isBossStage(state.stage)) prefix = "👹 BOSS";
 
         els.monsterPrefix.textContent = prefix;
         els.monsterName.textContent = name;
         els.monsterPrefix.style.display = prefix ? "inline" : "none";
 
         if (spriteEngine) {
-            spriteEngine.setMonster(def.type, currentSpecial, isBossStage(state.stage) || currentSpecial === "elite");
+            spriteEngine.setMonster(def.type, isTitanFight ? "elite" : currentSpecial, isBossStage(state.stage) || isTitanFight || currentSpecial === "elite");
         }
 
-        if (currentSpecial) {
+        if (isTitanFight) {
+            els.specialTag.textContent = "×25 OR · 💎💎 · Loot légendaire !";
+            els.specialTag.className = "special-tag special-titan";
+        } else if (currentSpecial) {
             els.specialTag.textContent = currentSpecial === "golden" ? "×15 OR + 💎" :
                 currentSpecial === "elite" ? "×2 OR — 3× PV" :
                 currentSpecial === "treasure" ? "Loot garanti !" : "";
@@ -444,9 +423,9 @@
             els.specialTag.className = "special-tag hidden";
         }
 
-        if (isBossStage(state.stage)) {
+        if (isTitanFight || isBossStage(state.stage)) {
             els.hpBar.classList.add("boss");
-            startBossTimer();
+            startBossTimer(isTitanFight);
         } else {
             els.hpBar.classList.remove("boss");
             stopBossTimer();
@@ -473,15 +452,15 @@
         spriteEngine.setHeroes(active);
     }
 
-    function startBossTimer() {
-        bossTimeLeft = BOSS_TIMER_SEC + getBossTimerBonus();
+    function startBossTimer(isTitan) {
+        bossTimeLeft = (isTitan ? TITAN_TIMER_SEC : BOSS_TIMER_SEC) + getBossTimerBonus();
         els.bossTimer.classList.remove("hidden");
         els.bossTimerText.textContent = bossTimeLeft + "s";
         if (bossTimer) clearInterval(bossTimer);
         bossTimer = setInterval(function () {
             bossTimeLeft--;
             els.bossTimerText.textContent = bossTimeLeft + "s";
-            if (bossTimeLeft <= 0) failBoss();
+            if (bossTimeLeft <= 0) failBoss(isTitan);
         }, 1000);
     }
 
@@ -490,14 +469,15 @@
         els.bossTimer.classList.add("hidden");
     }
 
-    function failBoss() {
+    function failBoss(wasTitan) {
         stopBossTimer();
+        var penalty = wasTitan ? 10 : 5;
         if (isInfiniteMode()) {
-            state.infiniteWave = Math.max(1, state.infiniteWave - 3);
-            showToast("Boss échappé ! Vague " + state.infiniteWave);
+            state.infiniteWave = Math.max(1, state.infiniteWave - Math.floor(penalty / 2));
+            showToast((wasTitan ? "Titan" : "Boss") + " échappé ! Vague " + state.infiniteWave);
         } else {
-            state.stage = Math.max(1, state.stage - 5);
-            showToast("Boss échappé ! Retour étape " + state.stage);
+            state.stage = Math.max(1, state.stage - penalty);
+            showToast((wasTitan ? "Titan" : "Boss") + " échappé ! Retour étape " + state.stage);
         }
         spawnMonster();
     }
@@ -526,11 +506,12 @@
     }
 
     function generateLoot(forcedRarity) {
-        var slots = ["weapon", "armor", "ring"];
+        var slots = ["weapon", "armor", "ring", "amulet"];
         var slot = slots[Math.floor(Math.random() * slots.length)];
         var rarity = forcedRarity || rollRarity("bronze");
         var rDef = RARITY[rarity];
-        var nameIdx = Math.min(LOOT_NAMES[slot].length - 1, Math.floor(rDef.mult / 4));
+        var names = LOOT_NAMES[slot] || LOOT_NAMES.weapon;
+        var nameIdx = Math.min(names.length - 1, Math.floor(rDef.mult / 2));
         var bonus = {};
         if (slot === "weapon") bonus.tap = 0.03 * rDef.mult;
         if (slot === "armor") bonus.dps = 0.04 * rDef.mult;
@@ -538,13 +519,19 @@
             bonus.gold = 0.05 * rDef.mult;
             if (rarity === "epic" || rarity === "legendary") bonus.crit = 0.01 * rDef.mult;
         }
+        if (slot === "amulet") {
+            bonus.tap = 0.02 * rDef.mult;
+            bonus.dps = 0.02 * rDef.mult;
+            if (rarity === "legendary") bonus.gold = 0.05 * rDef.mult;
+        }
+        var icons = { weapon: "⚔️", armor: "🛡️", ring: "💍", amulet: "📿" };
         lootIdCounter++;
         return {
             uid: "loot_" + Date.now() + "_" + lootIdCounter,
-            name: LOOT_NAMES[slot][nameIdx],
+            name: names[nameIdx],
             slot: slot, rarity: rarity,
             bonus: bonus,
-            icon: slot === "weapon" ? "⚔️" : slot === "armor" ? "🛡️" : "💍"
+            icon: icons[slot]
         };
     }
 
@@ -621,32 +608,47 @@
     }
 
     function killMonster() {
+        var def = getMonsterDef(state.stage);
+        recordCodex(def.name);
+
         var reward = goldReward(state.stage);
         state.gold += reward;
         state.stats.totalKills++;
-        if (isBossStage(state.stage)) {
+
+        if (isTitanFight) {
+            state.stats.titansKilled = (state.stats.titansKilled || 0) + 1;
+            trackQuest("titan", 1);
+            var titanGems = 5 + Math.floor(state.stage / 50) * 2;
+            state.gems += titanGems;
+            addLootToInventory(generateLoot("legend"));
+            showToast("TITAN VAINCU ! +" + titanGems + " 💎 + loot légendaire !");
+            checkAchievements();
+        } else if (isBossStage(state.stage)) {
             state.stats.totalBossKills++;
             trackQuest("boss", 1);
         }
+
         trackQuest("kill", 1);
         if (!isInfiniteMode()) {
             state.totalStages = Math.max(state.totalStages, state.stage);
             state.maxStageReached = Math.max(state.maxStageReached, state.stage);
         }
 
-        var world = getWorld(getEffectiveStage());
-        var gemChance = (world.gemChance + artifactBonus("clover")) * (getCurrentEvent().gemMult || 1);
-        if (Math.random() < gemChance) {
-            var gems = currentSpecial === "golden" ? 1 + Math.floor(Math.random() * 3) : 1;
-            state.gems += gems;
-            showToast("+" + gems + " 💎 gemmes !");
-        }
+        if (!isTitanFight) {
+            var world = getWorld(getEffectiveStage());
+            var gemChance = (world.gemChance + artifactBonus("clover")) * (getCurrentEvent().gemMult || 1);
+            if (Math.random() < gemChance) {
+                var gems = currentSpecial === "golden" ? 1 + Math.floor(Math.random() * 3) : 1;
+                state.gems += gems;
+                showToast("+" + gems + " 💎 gemmes !");
+            }
 
-        var lootChance = (0.04 + artifactBonus("heart")) * (getCurrentEvent().lootMult || 1);
-        if (currentSpecial === "treasure" || Math.random() < lootChance) {
-            var drop = generateLoot(Math.random() < 0.05 ? "gold" : "bronze");
-            addLootToInventory(drop);
-            showToast("Loot : " + drop.name + " !");
+            var lootChance = (0.04 + artifactBonus("heart") + getPetBonus("loot")) * (getCurrentEvent().lootMult || 1);
+            if (currentSpecial === "treasure" || Math.random() < lootChance) {
+                var drop = generateLoot(Math.random() < 0.05 ? "gold" : "bronze");
+                addLootToInventory(drop);
+                showToast("Loot : " + drop.name + " !");
+            }
         }
 
         checkArtifactDiscoveries();
@@ -840,11 +842,12 @@
         var targetStage = Math.max(state.stage + 10, state.maxStageReached + 5);
         state.quests = {
             date: todayKey(),
-            progress: { kill: 0, boss: 0, tap: 0, damage: 0, chest: 0, skill: 0 },
+            progress: { kill: 0, boss: 0, tap: 0, damage: 0, chest: 0, skill: 0, titan: 0 },
             items: [
-                { id: "q_kill", desc: "Tuer 30 monstres", type: "kill", target: 30, reward: { gold: 500 }, claimed: false },
-                { id: "q_boss", desc: "Vaincre 2 boss", type: "boss", target: 2, reward: { gems: 2 }, claimed: false },
-                { id: "q_stage", desc: "Atteindre l'étape " + targetStage, type: "stage", target: targetStage, reward: { gems: 3, gold: 2000 }, claimed: false }
+                { id: "q_kill", desc: "Tuer 40 monstres", type: "kill", target: 40, reward: { gold: 800 }, claimed: false },
+                { id: "q_boss", desc: "Vaincre 3 boss", type: "boss", target: 3, reward: { gems: 3 }, claimed: false },
+                { id: "q_titan", desc: "Vaincre 1 titan", type: "titan", target: 1, reward: { gems: 10, gold: 5000 }, claimed: false },
+                { id: "q_stage", desc: "Atteindre l'étape " + targetStage, type: "stage", target: targetStage, reward: { gems: 5, gold: 3000 }, claimed: false }
             ]
         };
     }
@@ -876,6 +879,8 @@
             var val = ach.stat === "dailyStreak" ? state.daily.streak :
                 ach.stat === "maxComboReached" ? state.stats.maxComboReached :
                 ach.stat === "infiniteBest" ? state.infiniteBest :
+                ach.stat === "petsOwned" ? countOwnedPets() :
+                ach.stat === "codexCount" ? getCodexCount() :
                 state.stats[ach.stat] || state[ach.stat] || 0;
             if (val >= ach.target) {
                 state.achievements[ach.id] = true;
@@ -1052,6 +1057,8 @@
             daily: Object.assign({}, state.daily),
             gems: state.gems,
             infiniteBest: state.infiniteBest,
+            pets: Object.assign({}, state.pets),
+            codex: Object.assign({}, state.codex),
             mode: state.mode,
             campaignStage: 1
         };
@@ -1067,6 +1074,8 @@
         state.daily = kept.daily;
         state.gems = kept.gems;
         state.infiniteBest = kept.infiniteBest;
+        state.pets = kept.pets;
+        state.codex = kept.codex;
         state.stats.infiniteBest = kept.infiniteBest;
         state.mode = kept.mode === "infinite" ? "campaign" : kept.mode;
         state.campaignStage = 1;
@@ -1161,10 +1170,62 @@
         });
     }
 
+    function buyPet(petId) {
+        var pet = PETS.find(function (p) { return p.id === petId; });
+        if (!pet || state.pets[petId]) return;
+        var cost = getPetCost(pet);
+        if (state.gems < cost) return showToast("Pas assez de gemmes !");
+        state.gems -= cost;
+        state.pets[petId] = true;
+        state.stats.petsOwned = countOwnedPets();
+        updateHud();
+        renderPets();
+        scheduleSave();
+        checkAchievements();
+        showToast(pet.name + " rejoint l'aventure !");
+    }
+
+    function renderPets() {
+        if (!els.petList) return;
+        els.petList.innerHTML = "";
+        PETS.forEach(function (pet) {
+            var owned = !!state.pets[pet.id];
+            var cost = getPetCost(pet);
+            var canBuy = !owned && state.gems >= cost;
+            var li = document.createElement("li");
+            li.className = "item-card" + (owned ? " achievement-done" : canBuy ? "" : " disabled");
+            li.innerHTML = '<div class="item-icon">' + pet.icon + '</div>' +
+                '<div class="item-info"><div class="item-name">' + pet.name + (owned ? " ✓" : "") + '</div>' +
+                '<div class="item-desc">' + pet.desc + '</div></div>' +
+                '<div class="item-action"><div class="item-cost">' +
+                (owned ? "Actif" : "💎 " + cost) + '</div></div>';
+            if (canBuy) li.addEventListener("click", function () { buyPet(pet.id); });
+            els.petList.appendChild(li);
+        });
+    }
+
+    function renderCodex() {
+        if (!els.codexList) return;
+        els.codexList.innerHTML = "";
+        var discovered = Object.keys(state.codex).length;
+        els.codexList.innerHTML = '<li class="codex-summary">Découvert : ' + discovered + " / " + MONSTERS.length + " espèces</li>";
+        MONSTERS.forEach(function (m) {
+            var kills = state.codex[m.name] || 0;
+            var li = document.createElement("li");
+            li.className = "item-card" + (kills ? "" : " disabled");
+            li.innerHTML = '<div class="item-icon">' + (kills ? "👾" : "❓") + '</div>' +
+                '<div class="item-info"><div class="item-name">' + (kills ? m.name : "???") + '</div>' +
+                '<div class="item-desc">' + (kills ? kills + " tués" : "Pas encore rencontré") + '</div></div>';
+            els.codexList.appendChild(li);
+        });
+    }
+
     function renderLoot() {
-        ["weapon", "armor", "ring"].forEach(function (slot) {
+        var slotMap = { weapon: els.slotWeapon, armor: els.slotArmor, ring: els.slotRing, amulet: els.slotAmulet };
+        ["weapon", "armor", "ring", "amulet"].forEach(function (slot) {
             var item = state.equipment[slot];
-            var el = els["slot" + slot.charAt(0).toUpperCase() + slot.slice(1)];
+            var el = slotMap[slot];
+            if (!el) return;
             if (!item) { el.textContent = "—"; el.style.color = ""; return; }
             el.textContent = item.icon + " " + item.name;
             el.style.color = RARITY[item.rarity].color;
@@ -1220,6 +1281,8 @@
             var val = ach.stat === "dailyStreak" ? state.daily.streak :
                 ach.stat === "maxComboReached" ? state.stats.maxComboReached :
                 ach.stat === "infiniteBest" ? state.infiniteBest :
+                ach.stat === "petsOwned" ? countOwnedPets() :
+                ach.stat === "codexCount" ? getCodexCount() :
                 state.stats[ach.stat] || 0;
             var li = document.createElement("li");
             li.className = "item-card" + (done ? " achievement-done" : "");
@@ -1229,6 +1292,7 @@
                 (ach.reward.gems ? " · 💎 " + ach.reward.gems : "") + '</div></div>';
             els.achievementList.appendChild(li);
         });
+        renderCodex();
     }
 
     function showToast(msg) {
@@ -1285,6 +1349,7 @@
         spawnMonster();
         renderShop();
         renderLoot();
+        renderPets();
         renderQuests();
         renderSkills();
         updateHud();

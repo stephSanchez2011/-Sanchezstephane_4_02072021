@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#1a0a2e">
     <link rel="manifest" href="manifest.json">
     <title>Tap Titan — Idle Clicker</title>
-    <link rel="stylesheet" href="css/style.css?v=6">
+    <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body>
     <div id="game-app">
@@ -88,21 +88,26 @@
                 <ul id="artifact-list" class="item-list"></ul>
             </div>
             <div id="panel-loot" class="panel-content">
-                <div class="equipment-slots">
+                <div class="equipment-slots equipment-slots-4">
                     <div class="slot" data-slot="weapon"><span class="slot-label">Arme</span><span id="slot-weapon" class="slot-item">—</span></div>
                     <div class="slot" data-slot="armor"><span class="slot-label">Armure</span><span id="slot-armor" class="slot-item">—</span></div>
                     <div class="slot" data-slot="ring"><span class="slot-label">Anneau</span><span id="slot-ring" class="slot-item">—</span></div>
+                    <div class="slot" data-slot="amulet"><span class="slot-label">Amulette</span><span id="slot-amulet" class="slot-item">—</span></div>
                 </div>
                 <div class="chest-row">
                     <button id="chest-bronze" class="chest-btn" type="button">📦 Bronze<br><small>🪙 500</small></button>
                     <button id="chest-gold" class="chest-btn" type="button">🎁 Or<br><small>💎 5</small></button>
                     <button id="chest-legend" class="chest-btn" type="button">👑 Légende<br><small>💎 25</small></button>
                 </div>
+                <h3 class="section-title">Compagnons</h3>
+                <ul id="pet-list" class="item-list"></ul>
                 <ul id="inventory-list" class="item-list"></ul>
             </div>
             <div id="panel-quests" class="panel-content">
                 <h3 class="section-title">Quêtes du jour</h3>
                 <ul id="quest-list" class="item-list"></ul>
+                <h3 class="section-title">Codex des monstres</h3>
+                <ul id="codex-list" class="item-list codex-list"></ul>
                 <h3 class="section-title">Succès</h3>
                 <ul id="achievement-list" class="item-list"></ul>
             </div>
@@ -141,7 +146,8 @@
 
     <div id="toast" class="toast hidden"></div>
 
-    <script src="js/sprites.js?v=6"></script>
-    <script src="js/game.js?v=6"></script>
+    <script src="js/content.js?v=7"></script>
+    <script src="js/sprites.js?v=7"></script>
+    <script src="js/game.js?v=7"></script>
 </body>
 </html>

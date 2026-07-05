@@ -1,8 +1,9 @@
-const CACHE = "tap-titan-v6";
+const CACHE = "tap-titan-v7";
 const ASSETS = [
     "./",
     "./index.html",
     "./css/style.css",
+    "./js/content.js",
     "./js/game.js",
     "./js/sprites.js",
     "./manifest.json"
@@ -34,7 +35,7 @@ self.addEventListener("fetch", function (e) {
 
     var url = new URL(e.request.url);
     var isGameAsset = url.pathname.includes("/tap-titan/") &&
-        (url.pathname.endsWith(".js") || url.pathname.endsWith(".css") || url.pathname.endsWith(".html"));
+        (/\.(js|css|html)$/.test(url.pathname) || url.pathname.endsWith("/tap-titan/"));
 
     if (isGameAsset) {
         e.respondWith(
@@ -48,12 +49,5 @@ self.addEventListener("fetch", function (e) {
                 return caches.match(e.request);
             })
         );
-        return;
     }
-
-    e.respondWith(
-        caches.match(e.request).then(function (cached) {
-            return cached || fetch(e.request);
-        })
-    );
 });
