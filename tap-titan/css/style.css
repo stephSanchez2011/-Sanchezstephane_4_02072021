@@ -44,9 +44,95 @@ html, body {
 
 /* HUD */
 .hud {
-    padding: 12px 16px 8px;
+    padding: 10px 14px 6px;
     background: linear-gradient(180deg, rgba(26, 10, 46, 0.95), transparent);
     z-index: 10;
+}
+
+.world-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+#world-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-glow);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.world-stage {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+}
+
+.hud-row-sub {
+    margin-bottom: 8px;
+}
+
+.stat-gems {
+    flex-direction: row;
+    gap: 4px;
+}
+
+.combo-value {
+    color: var(--accent-glow);
+}
+
+.combo-value.combo-hot {
+    color: #ff006e;
+    animation: pulse 0.5s infinite;
+}
+
+.daily-btn {
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 209, 102, 0.3);
+    background: rgba(255, 209, 102, 0.1);
+    color: var(--gold);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.daily-btn.daily-ready {
+    background: rgba(255, 209, 102, 0.25);
+    border-color: var(--gold);
+    animation: pulse 1.2s infinite;
+}
+
+.special-tag {
+    text-align: center;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 8px;
+}
+
+.special-tag.hidden { display: none; }
+
+.special-golden { color: #ffd166; background: rgba(255, 209, 102, 0.15); }
+.special-elite { color: #ff6b35; background: rgba(255, 107, 53, 0.15); }
+.special-treasure { color: #06d6a0; background: rgba(6, 214, 160, 0.15); }
+
+.monster-body.golden {
+    animation: goldenPulse 1s ease-in-out infinite;
+    box-shadow: 0 0 30px rgba(255, 209, 102, 0.8);
+}
+
+.monster-body.treasure {
+    box-shadow: 0 0 20px rgba(6, 214, 160, 0.6);
+}
+
+@keyframes goldenPulse {
+    0%, 100% { filter: brightness(1); transform: scale(1); }
+    50% { filter: brightness(1.3); transform: scale(1.05); }
 }
 
 .hud-row {
@@ -384,6 +470,159 @@ html, body {
     font-size: 0.75rem;
     color: var(--text-dim);
     text-align: center;
+}
+
+.panel-hint-artifacts {
+    padding-top: 4px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 4px;
+}
+
+.section-title {
+    font-size: 0.8rem;
+    color: var(--accent-glow);
+    padding: 8px 14px 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.equipment-slots {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+}
+
+.slot {
+    flex: 1;
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 8px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.slot-label {
+    display: block;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.slot-item {
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.chest-row {
+    display: flex;
+    gap: 8px;
+    padding: 0 10px 10px;
+}
+
+.chest-btn {
+    flex: 1;
+    padding: 10px 6px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--bg-card);
+    color: var(--text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    line-height: 1.3;
+}
+
+.chest-btn:active { transform: scale(0.96); }
+
+.chest-btn small { color: var(--gold); font-weight: 700; }
+
+.loot-card { border-left: 3px solid var(--text-dim); }
+.rarity-border-common { border-left-color: #adb5bd; }
+.rarity-border-rare { border-left-color: #4cc9f0; }
+.rarity-border-epic { border-left-color: #b5179e; }
+.rarity-border-legendary { border-left-color: #ffbe0b; }
+
+.loot-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.btn-small {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-equip { background: var(--accent); color: #fff; }
+.btn-sell { background: rgba(255,255,255,0.1); color: var(--text-dim); }
+.btn-claim { background: var(--hp-green); color: #fff; padding: 8px 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+
+.quest-done { border-color: rgba(6, 214, 160, 0.4); }
+.achievement-done { opacity: 0.7; }
+.claimed { color: var(--hp-green); font-weight: 700; font-size: 1.2rem; }
+.empty-msg { text-align: center; color: var(--text-dim); font-size: 0.8rem; padding: 20px; list-style: none; }
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+}
+
+.modal-overlay.hidden { display: none; }
+
+.modal {
+    background: var(--bg-panel);
+    border-radius: 16px;
+    padding: 24px 20px;
+    max-width: 320px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+    animation: modalIn 0.3s ease-out;
+}
+
+@keyframes modalIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal h2 { color: var(--accent-glow); margin-bottom: 16px; font-size: 1.1rem; }
+
+.btn-modal {
+    margin-top: 16px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-glow));
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.loot-reveal { padding: 10px 0; }
+.loot-big-icon { font-size: 3rem; display: block; margin-bottom: 8px; }
+.loot-name { font-size: 1.1rem; font-weight: 700; }
+.loot-rarity { font-size: 0.85rem; color: var(--text-dim); margin: 4px 0; }
+.loot-stats { font-size: 0.85rem; color: var(--gold); }
+
+.daily-reward p { margin: 8px 0; font-size: 1rem; }
+.streak-info { color: var(--text-dim); font-size: 0.85rem !important; }
+
+.damage-number.loot {
+    color: var(--gold);
+    font-size: 1.2rem;
 }
 
 .item-icon.locked {

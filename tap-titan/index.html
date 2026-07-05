@@ -13,6 +13,10 @@
 <body>
     <div id="game-app">
         <header class="hud">
+            <div class="world-banner">
+                <span id="world-name">Forêt sombre</span>
+                <span id="world-stage" class="world-stage">Monde 1</span>
+            </div>
             <div class="hud-row">
                 <div class="stat">
                     <span class="stat-label">Étape</span>
@@ -22,22 +26,28 @@
                     <span class="stat-icon">🪙</span>
                     <span id="gold-display" class="stat-value">0</span>
                 </div>
-                <div class="stat">
-                    <span class="stat-label">DPS</span>
-                    <span id="dps-display" class="stat-value">0</span>
+                <div class="stat stat-gems">
+                    <span class="stat-icon">💎</span>
+                    <span id="gems-display" class="stat-value">0</span>
                 </div>
+            </div>
+            <div class="hud-row hud-row-sub">
+                <div class="stat"><span class="stat-label">DPS</span><span id="dps-display" class="stat-value">0</span></div>
+                <div class="stat"><span class="stat-label">Combo</span><span id="combo-display" class="stat-value combo-value">×1</span></div>
+                <button id="daily-btn" class="daily-btn" type="button">🎁 Daily</button>
             </div>
             <div class="hp-bar-wrap">
                 <div id="hp-bar" class="hp-bar"></div>
                 <span id="hp-text" class="hp-text">10 / 10</span>
             </div>
+            <div id="special-tag" class="special-tag hidden"></div>
             <div id="boss-timer" class="boss-timer hidden">
                 <span>Boss — </span><span id="boss-timer-text">30s</span>
             </div>
             <div id="active-buffs" class="active-buffs"></div>
         </header>
 
-        <main class="battle-area">
+        <main class="battle-area" id="battle-area">
             <div id="monster-zone" class="monster-zone" role="button" aria-label="Tapper pour attaquer">
                 <canvas id="particles" class="particles"></canvas>
                 <div id="monster" class="monster">
@@ -56,8 +66,9 @@
 
         <nav class="tabs">
             <button class="tab active" data-tab="heroes">Héros</button>
-            <button class="tab" data-tab="upgrades">Amélior.</button>
-            <button class="tab" data-tab="artifacts">Artefacts</button>
+            <button class="tab" data-tab="upgrades">Amél.</button>
+            <button class="tab" data-tab="loot">Loot</button>
+            <button class="tab" data-tab="quests">Quêtes</button>
             <button class="tab" data-tab="prestige">Prestige</button>
         </nav>
 
@@ -67,15 +78,32 @@
             </div>
             <div id="panel-upgrades" class="panel-content">
                 <ul id="upgrade-list" class="item-list"></ul>
-            </div>
-            <div id="panel-artifacts" class="panel-content">
-                <p class="panel-hint">Découvrez des artefacts en progressant. Améliorez-les avec des reliques.</p>
+                <p class="panel-hint panel-hint-artifacts">Artefacts débloqués par progression — améliorez avec reliques.</p>
                 <ul id="artifact-list" class="item-list"></ul>
+            </div>
+            <div id="panel-loot" class="panel-content">
+                <div class="equipment-slots">
+                    <div class="slot" data-slot="weapon"><span class="slot-label">Arme</span><span id="slot-weapon" class="slot-item">—</span></div>
+                    <div class="slot" data-slot="armor"><span class="slot-label">Armure</span><span id="slot-armor" class="slot-item">—</span></div>
+                    <div class="slot" data-slot="ring"><span class="slot-label">Anneau</span><span id="slot-ring" class="slot-item">—</span></div>
+                </div>
+                <div class="chest-row">
+                    <button id="chest-bronze" class="chest-btn" type="button">📦 Bronze<br><small>🪙 500</small></button>
+                    <button id="chest-gold" class="chest-btn" type="button">🎁 Or<br><small>💎 5</small></button>
+                    <button id="chest-legend" class="chest-btn" type="button">👑 Légende<br><small>💎 25</small></button>
+                </div>
+                <ul id="inventory-list" class="item-list"></ul>
+            </div>
+            <div id="panel-quests" class="panel-content">
+                <h3 class="section-title">Quêtes du jour</h3>
+                <ul id="quest-list" class="item-list"></ul>
+                <h3 class="section-title">Succès</h3>
+                <ul id="achievement-list" class="item-list"></ul>
             </div>
             <div id="panel-prestige" class="panel-content">
                 <div class="prestige-box">
                     <h2>Prestige</h2>
-                    <p>Recommencez avec des bonus permanents. Gagnez des reliques selon votre progression.</p>
+                    <p>Recommencez avec des bonus permanents. Les artefacts et l'équipement sont conservés.</p>
                     <div class="prestige-stats">
                         <div><span class="label">Reliques</span><span id="relics-display">0</span></div>
                         <div><span class="label">Bonus dégâts</span><span id="relic-bonus">+0%</span></div>
@@ -85,6 +113,14 @@
                 </div>
             </div>
         </section>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div id="modal" class="modal">
+            <h2 id="modal-title"></h2>
+            <div id="modal-body"></div>
+            <button id="modal-close" class="btn-modal" type="button">Continuer</button>
+        </div>
     </div>
 
     <div id="toast" class="toast hidden"></div>

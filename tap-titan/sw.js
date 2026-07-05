@@ -1,4 +1,4 @@
-const CACHE = "tap-titan-v2";
+const CACHE = "tap-titan-v3";
 const ASSETS = ["./", "./index.html", "./css/style.css", "./js/game.js", "./manifest.json"];
 
 self.addEventListener("install", function (e) {
