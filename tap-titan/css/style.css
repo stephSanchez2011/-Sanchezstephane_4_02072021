@@ -276,6 +276,37 @@ html, body {
 .special-golden { color: #ffd166; background: rgba(255, 209, 102, 0.15); }
 .special-elite { color: #ff6b35; background: rgba(255, 107, 53, 0.15); }
 .special-treasure { color: #06d6a0; background: rgba(6, 214, 160, 0.15); }
+.special-titan { color: #ff006e; background: rgba(255, 0, 110, 0.2); animation: pulse 0.8s infinite; }
+
+.equipment-slots {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+}
+
+.equipment-slots.equipment-slots-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.codex-summary {
+    list-style: none;
+    text-align: center;
+    color: var(--accent-glow);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px;
+}
+
+.codex-list .item-card {
+    padding: 8px 12px;
+}
+
+.codex-list .item-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+}
 
 .monster-body.golden {
     animation: goldenPulse 1s ease-in-out infinite;
